@@ -1,0 +1,222 @@
+
+
+syntax = "proto3";
+
+
+package NfsProtocol;
+
+service NfsServer {
+
+	rpc server_lookup(lookup_request) returns (lookup_response) {}
+
+	rpc server_mkdir(mkdir_request) returns (c_response) {}
+
+	rpc server_rmdir(rmdir_request) returns (c_response) {}
+
+	rpc server_rename(rename_request) returns (c_response) {}
+
+	rpc server_open(open_request) returns (d_response) {}
+
+	rpc server_create(create_request) returns (d_response) {}
+
+	rpc server_truncate(truncate_request) returns (d_response) {}
+	
+	rpc server_unlink(unlink_request) returns (c_response) {}
+
+	rpc server_read(read_request) returns (read_response) {}
+	
+	rpc read_directory(readdir_request) returns (readdir_response) {}
+
+	rpc server_mknod(read_directory_single_object) returns (c_response) {}
+
+	rpc get_attributes(attribute_request) returns (attribute_response) {}
+	
+	rpc server_release(read_request) returns (d_response) {}
+	
+	rpc server_write(write_request) returns (write_response) {}
+
+	rpc server_commit(read_request) returns (c_response) {}
+	
+	// rpc remove(remove_request) returns (remove_response) {}	
+	
+	// rpc fsync(fsync_request) returns (fsyn_response) {}  
+	rpc server_fsync(fsync_request) returns (fsync_response) {}  
+
+	rpc server_flush(flush_request) returns (flush_response) {}
+
+	// rpc release(release_request) returns (release_response) {}
+	
+	// rpc utimens (utimens_request) returns (utimens_response) {}
+
+}
+
+message proto_file_info {
+	uint64 fh = 1;
+	uint32 flags = 2;
+}
+
+message attributes {
+	uint64 st_dev = 1;
+	uint64 st_ino = 2;
+	uint64 st_mode = 3;
+	uint64 st_nlink = 4;
+	uint64 st_uid = 5;
+	uint64 st_gid = 6;
+	uint64 st_rdev = 7;
+	uint64 st_size = 8;
+	uint64 st_catime = 9;
+	uint64 st_cmtime = 10;
+	uint64 st_cctime = 11;
+	uint64 st_blksize = 12;
+	uint64 st_blocks = 13;
+	uint64 st_attr = 14;
+}
+
+message mkdir_request {
+	int32 dirfh = 1;
+	string name = 2;
+	attributes attr = 3;
+	string cid = 4;
+}
+
+message c_response {
+	uint64 success = 1;
+	uint64 ern = 2;
+}
+
+message rmdir_request {
+	int32 dirfh = 1;
+	string cid = 2;
+}
+
+message rename_request {
+	int32 todirfh = 1;
+	string name = 2;
+	int32 fromfh = 3;
+	string cid = 4;
+}
+
+message open_request {
+	int32 fh = 1;
+	proto_file_info pfi = 2;
+	string cid = 3;
+}
+
+message create_request {
+	int32 dirfh = 1;
+	string name = 2;
+	attributes attr = 3;
+	proto_file_info pfi = 4;
+	string cid = 5;
+}
+
+message truncate_request {
+	int32 fh = 1;
+	attributes attr = 2;
+	proto_file_info pfi = 3;
+	string cid = 4;
+}
+
+message d_response {
+	uint64 success = 1;
+	uint64 ern = 2;
+	proto_file_info pfi = 3;
+}
+
+message unlink_request {
+	int32 fh = 1;
+	string cid = 2;
+}
+
+message read_request {
+	int32 size  = 1;
+	int32 offset = 2;
+	int32 fh = 3;
+	proto_file_info pfi = 4;
+	string cid = 5;
+}
+
+message read_response {
+	bytes data = 1;
+	int32 success = 2;
+	int32 ern = 5;
+	proto_file_info pfi = 3;
+	int32 size = 4;
+}
+
+message read_directory_single_object {
+	string name = 1;
+	attributes attr = 2;
+}
+
+message readdir_request {
+	int32 dirfh = 1;
+	proto_file_info fi = 2;
+	string cid = 3;
+}
+
+message readdir_response {
+	repeated read_directory_single_object objects = 1;
+	int32 status = 2;
+}
+
+message attribute_request {
+	int32 fh = 1;
+	string path = 4;
+	attributes attr = 2;
+	string cid = 3;
+}
+
+message attribute_response {
+	int32 status = 1;
+	attributes attr = 2;
+}
+
+message lookup_request {
+	int32 dirfh = 1;
+	string name = 2;
+	string cid = 3;
+}
+
+message lookup_response {
+	int32 fh = 1;
+}
+
+message write_request {
+	int32 size  = 1;
+	int32 offset = 2;
+	bytes data = 3;
+	int32 fh = 4;
+	proto_file_info pfi = 5;
+	string cid = 6;
+}
+
+message write_response {
+	int32 status = 1;
+	int32 dataSize = 2;
+	proto_file_info pfi = 3;
+}
+
+
+message fsync_request {
+	string path = 1;
+	int32 isDataSync = 2;
+	proto_file_info fileInfo = 3;
+	string cid = 4;
+}
+
+message fsync_response {
+	int32 status = 1;
+	proto_file_info fileInfo = 2;
+}
+
+message flush_request {
+	string path = 1;
+	proto_file_info fileInfo = 2;
+	string cid = 3;
+}
+
+message flush_response {
+	int32 status = 1;
+	proto_file_info fileInfo = 2;
+}
